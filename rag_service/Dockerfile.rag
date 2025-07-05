@@ -1,0 +1,46 @@
+# Stage 1: 使用官方 Python slim 镜像作为基础
+FROM python:3.10-slim
+
+# 设置环境变量，避免 Python 写入 .pyc 文件
+ENV PYTHONDONTWRITEBYTECODE 1
+# 禁用 Python 的输出缓冲
+ENV PYTHONUNBUFFERED 1
+
+# 更新包管理器并安装必要的系统依赖
+# --no-install-recommends 避免安装不必要的推荐包
+# 安装完成后清理 apt 缓存，以减小镜像体积
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# 设置工作目录
+WORKDIR /app
+
+# 升级 pip 并安装 Python 依赖
+# --no-cache-dir 选项可以减小镜像层的大小
+# 首先只拷贝 requirements.txt，这样可以利用 Docker 的层缓存。
+# 只要 requirements.txt 文件没有变化，下面这层就不会重新执行。
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# 拷贝应用程序代码和数据
+COPY ./app ./app
+COPY ./data ./data
+
+# 【关键改动】在镜像构建时生成索引
+# 将索引构建步骤从运行时 (CMD) 移到构建时 (RUN)，
+# 这样容器每次启动时就无需重复耗时构建索引了。
+RUN python -m app.build_index
+
+# 声明数据卷，用于持久化存储 ChromaDB 的数据
+VOLUME /app/chroma_store
+
+# 暴露服务端口
+EXPOSE 8080
+
+# 设置容器启动命令
+# - 使用 exec 格式 (JSON 数组) 替代 shell 格式。
+# - 这让 uvicorn 成为容器的主进程 (PID 1)，能够正确接收和处理来自 Docker 的终止信号 (如 SIGTERM)，实现平滑关闭。
+# - 移除了 build_index 命令，因为它已经在上面的 RUN 指令中执行过了。
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

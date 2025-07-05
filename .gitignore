@@ -1,0 +1,9 @@
+# 忽略所有 .env 文件
+*.env
+
+# 忽略所有 .txt 文件
+*.txt
+
+# 忽略整个 models/qwen3-4b-awq 目录及其所有内容
+rag_service/chroma_store/
+vllm_service/models/Qwen3-4B-AWQ
