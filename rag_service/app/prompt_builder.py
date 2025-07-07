@@ -9,8 +9,6 @@ def load_background():
     if not bg_env:
         logger.warning("No BACKGROUND environment variable set, using empty background.")
         return ""
-
-    # 如果是文件路径且文件存在，则读取文件内容
     if os.path.isfile(bg_env):
         logger.info(f"Loading background from file: {bg_env}")
         try:
@@ -19,8 +17,6 @@ def load_background():
         except Exception as e:
             logger.error(f"Failed to read background file '{bg_env}': {e}")
             return ""
-
-    # 否则当作字符串直接返回
     logger.info("Using BACKGROUND as raw string.")
     return bg_env
 
