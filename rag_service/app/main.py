@@ -19,8 +19,8 @@ embedder = EmbeddingModel()
 db = build_rag_DB()
 
 class QueryRequest(BaseModel):
-    message_id: str  # 外部传入的唯一消息ID，用于关联其他表
-    text: str        # 用户输入文本
+    message_id: str
+    text: str
 
 @app.post("/generate")
 def generate(req: QueryRequest):
