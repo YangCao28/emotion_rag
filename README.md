@@ -7,7 +7,7 @@ Emotion RAG Service is a personalized retrieval-augmented generation (RAG) chatb
 
 📚 RAG-enabled: Only responds based on retrieved knowledge, avoiding hallucinations.
 
-🧠 Persona-driven: Maintains a consistent identity (e.g., "Xia Mingxing") for immersive interaction.
+🧠 Persona-driven: Maintains a consistent identity (e.g., "Jesse Xia") for immersive interaction.
 
 🚀 Fast & efficient: Supports AWQ quantized models, deployable on GPUs like T4/4090 via Docker and vLLM.
 
