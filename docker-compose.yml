@@ -14,14 +14,7 @@ services:
     volumes:
       - ./rag_service/data:/app/data
       - ./rag_service/chroma_store:/app/chroma_store
-    networks:
-      - emotion
-    # It's good practice to tell your RAG service where the vLLM API is
     environment:
-      - MODEL_SERVICE_URL=http://vllm-qwen:8000
       - CHARACTER_QUOTES_PATH=data/character_quotes.txt
       - BACKGROUND=data/background.txt
-
-networks:
-  emotion:
-    external: true
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
