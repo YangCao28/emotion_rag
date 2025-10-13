@@ -5,16 +5,29 @@ services:
     build:
       context: ./rag_service
       dockerfile: Dockerfile.rag
-    # container_name is optional, can be removed for better scalability
     container_name: rag-service
     ports:
       - "8080:8080"
     env_file:
       - ./rag_service/.env
     volumes:
-      - ./rag_service/data:/app/data
-      - ./rag_service/chroma_store:/app/chroma_store
+      - ./rag_service/chroma_db:/app/chroma_db
+      - rag_data:/app/data:ro  # 只读挂载数据文件
     environment:
-      - CHARACTER_QUOTES_PATH=data/character_quotes.txt
-      - BACKGROUND=data/background.txt
-      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - CHARACTER_QUOTES_PATH=/app/data/character_quotes.txt
+      - BACKGROUND=/app/data/background.txt
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  rag_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./rag_service/data
